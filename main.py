@@ -48,7 +48,17 @@ class Hostel(Base):
 
 
     def logout(self) -> None:
-        pass
+        url = self.config['hostel_endpoint']
+        headers = Hostel.generate_headers()
+        data = {
+            "mode": "193",
+            "username": self.config['username'],
+            "a": str(int(datetime.now().timestamp()))
+        }
+
+        response = requests.post(url, headers=headers, data=data, verify=False)
+        print(response.status_code)
+        print(response.text)
 
     @staticmethod
     def generate_headers() -> dict:
