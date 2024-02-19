@@ -3,6 +3,7 @@ import json
 from typing import TypedDict
 from abc import ABC, abstractmethod
 from datetime import datetime
+import subprocess
 
 class Config(TypedDict):
     username: str
@@ -89,8 +90,12 @@ class Campus(Base):
         pass
 
 def main() -> None:
-    hostel = Hostel()
-    hostel.login()
+    if '"VITAP-HOSTEL"' in str(subprocess.check_output("iwgetid")):
+        hostel = Hostel()
+        print("Connected to VITAP-HOSTEL")
+        res = requests.get("http://connectivitycheck.gstatic.com/generate_204")
+        if res.status_code != 204:
+            hostel.login()
 
 if __name__ == "__main__":
     main()
