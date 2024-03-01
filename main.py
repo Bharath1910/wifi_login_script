@@ -6,7 +6,12 @@ from datetime import datetime
 import subprocess
 import time
 import argparse
+from enum import Enum
 
+class Wifi(Enum):
+    HOSTEL = "VITAP-HOSTEL"
+    CAMPUS = "VIT-AP"
+    UNKNOWN = "UNKNOWN"
 class Config(TypedDict):
     username: str
     password: str
@@ -102,6 +107,34 @@ def parse_args() -> dict:
     group.add_argument("--logout", action="store_true", help="attempt logout")
     
     return vars(ap.parse_args())
+
+def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
+    if not poll:
+        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwgetid")):
+            return Wifi.HOSTEL
+
+        elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
+            return Wifi.CAMPUS
+
+        else:
+            return Wifi.UNKNOWN
+
+    if args['c'] is None:
+        args['c'] = 4
+
+    if args['i'] is None:
+        args['i'] = 5
+
+    for _ in range(int(args['c'])):
+        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwgetid")):
+            return Wifi.HOSTEL
+
+        elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
+            return Wifi.CAMPUS
+
+        time.sleep(int(args['i']))
+
+
 
 def main() -> None:
     if '"VITAP-HOSTEL"' in str(subprocess.check_output("iwgetid")):
