@@ -3,11 +3,14 @@
 A python script to automate wifi login for VIT-AP's university and campus's wifi.
 
 ## Installation
+I recommend using a [venv](https://docs.python.org/3/library/venv.html) so that this project's dependencies wont mess up your system wide dependencies.
+ 
+
 1. `$ git clone https://github.com/Bharath1910/wifi_login_script.git`
 2. `$ cd wifi_login_script`
 3. `$ pip install -r requirements.txt`
 4. `$ touch config.json`
-5. Add the following to `config.json
+5. Add the following to `config.json`
 	```json
 	{
 		"username": "your registration number",
@@ -16,7 +19,7 @@ A python script to automate wifi login for VIT-AP's university and campus's wifi
 		"campus_endpoint": ""
 	}
 	```
-	> Note: The above endpoints are the default endpoints for the university and campus wifi. If the endpoints are changed, you can find the new endpoints by inspecting the network requests in the browser's developer tools.
+	> **Note:** The above endpoints are the default endpoints for the hostel and campus wifi. If the endpoints are changed, you can find the new endpoints by inspecting the network requests in the browser's developer tools.
 
 ## Usage
 ```
