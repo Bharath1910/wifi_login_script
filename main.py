@@ -134,7 +134,29 @@ def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
 
         time.sleep(int(args['i']))
 
+def attempt_login(args: dict, wifi: Wifi) -> None:
+    if wifi == Wifi.HOSTEL:
+        hostel = Hostel()
+        hostel.login()
 
+    elif wifi == Wifi.CAMPUS:
+        campus = Campus()
+        campus.login()
+
+    else:
+        print("Unknown wifi")
+
+def attempt_logout(args: dict, wifi: Wifi) -> None:
+    if wifi == Wifi.HOSTEL:
+        hostel = Hostel()
+        hostel.logout()
+
+    elif wifi == Wifi.CAMPUS:
+        campus = Campus()
+        campus.logout()
+
+    else:
+        print("Unknown wifi")
 
 def main() -> None:
     if '"VITAP-HOSTEL"' in str(subprocess.check_output("iwgetid")):
