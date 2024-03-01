@@ -10,10 +10,10 @@ A python script to automate wifi login for VIT-AP's university and campus's wifi
 5. Add the following to `config.json
 	```json
 	{
-			"username": "your registration number",
-			"password": "your wifi password",
-			"hostel_endpoint": "https://hfw.vitap.ac.in:8090/login.xml",
-			"campus_endpoint": ""
+		"username": "your registration number",
+		"password": "your wifi password",
+		"hostel_endpoint": "https://hfw.vitap.ac.in:8090/login.xml",
+		"campus_endpoint": ""
 	}
 	```
 	> Note: The above endpoints are the default endpoints for the university and campus wifi. If the endpoints are changed, you can find the new endpoints by inspecting the network requests in the browser's developer tools.
