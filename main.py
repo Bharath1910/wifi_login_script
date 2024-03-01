@@ -4,6 +4,8 @@ from typing import TypedDict
 from abc import ABC, abstractmethod
 from datetime import datetime
 import subprocess
+import time
+import argparse
 
 class Config(TypedDict):
     username: str
@@ -88,6 +90,18 @@ class Campus(Base):
     @staticmethod
     def fetch_magic() -> str:
         pass
+
+def parse_args() -> dict:
+    ap = argparse.ArgumentParser(description="A command line utility to login and logout from VITAP's hostel and campus wifi")
+    ap.add_argument("-c", help="stop after <c> attempts to fetch wifi SSID (default is 4 attempts)")
+    ap.add_argument("-i", help="change interval seconds between attempts (default is 5 seconds)")
+    ap.add_argument("-p", action="store_true", help="enable polling to fetch wifi SSID")
+
+    group = ap.add_mutually_exclusive_group(required=True)
+    group.add_argument("--login", action="store_true", help="attempt login")
+    group.add_argument("--logout", action="store_true", help="attempt logout")
+    
+    return vars(ap.parse_args())
 
 def main() -> None:
     if '"VITAP-HOSTEL"' in str(subprocess.check_output("iwgetid")):
