@@ -159,12 +159,14 @@ def attempt_logout(args: dict, wifi: Wifi) -> None:
         print("Unknown wifi")
 
 def main() -> None:
-    if '"VITAP-HOSTEL"' in str(subprocess.check_output("iwgetid")):
-        hostel = Hostel()
-        print("Connected to VITAP-HOSTEL")
-        res = requests.get("http://connectivitycheck.gstatic.com/generate_204")
-        if res.status_code != 204:
-            hostel.login()
+    args = parse_args()
+    wifi = fetch_ssid(args=args, poll=args['p'])
+    
+    if args['login']:
+        attempt_login(args, wifi)
+    
+    else:
+        attempt_logout(args, wifi)
 
 if __name__ == "__main__":
     main()
