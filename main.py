@@ -110,10 +110,10 @@ def parse_args() -> dict:
 
 def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
     if not poll:
-        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwgetid")):
+        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwinfo")):
             return Wifi.HOSTEL
 
-        elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
+        elif 'VIT-AP' in str(subprocess.check_output("iwinfo")):
             return Wifi.CAMPUS
 
         else:
@@ -126,10 +126,10 @@ def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
         args['i'] = 5
 
     for _ in range(int(args['c'])):
-        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwgetid")):
+        if 'VITAP-HOSTEL' in str(subprocess.check_output("iwinfo")):
             return Wifi.HOSTEL
 
-        elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
+        elif 'VIT-AP' in str(subprocess.check_output("iwinfo")):
             return Wifi.CAMPUS
 
         time.sleep(int(args['i']))
