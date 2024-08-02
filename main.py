@@ -116,7 +116,8 @@ class Campus(Base):
 
 
     def logout(self) -> None:
-        pass
+        res = requests.get(f"{self.config["campus_endpoint"]}/logout?")
+        print(res.text)
 
     def generate_headers() -> dict:
         pass
@@ -189,17 +190,14 @@ def attempt_logout(args: dict, wifi: Wifi) -> None:
 
 def main() -> None:
     args = parse_args()
-    wifi = fetch_ssid(args=args, poll=args['p'])
+    # wifi = fetch_ssid(args=args, poll=args['p'])
     
+    campus = Campus()
     if args['login']:
-        attempt_login(args, wifi)
+        campus.login()
     
     else:
-        attempt_logout(args, wifi)
-
-def main() -> None:
-    campus = Campus()
-    campus.login()
+        campus.logout()
 
 if __name__ == "__main__":
     main()
