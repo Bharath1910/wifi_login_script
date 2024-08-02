@@ -7,11 +7,14 @@ import subprocess
 import time
 import argparse
 from enum import Enum
+import re
 
 class Wifi(Enum):
     HOSTEL = "VITAP-HOSTEL"
+    MH5 = "VIT-AP-MH5"
     CAMPUS = "VIT-AP"
     UNKNOWN = "UNKNOWN"
+
 class Config(TypedDict):
     username: str
     password: str
@@ -92,9 +95,32 @@ class Hostel(Base):
         }
 
 class Campus(Base):
-    @staticmethod
-    def fetch_magic() -> str:
+    def fetch_magic(self) -> str:
+        url = self.config["campus_endpoint"]
+        html = subprocess.run(["curl", f"{url}/login?"], stdout=subprocess.PIPE)
+        magicRegex = re.compile(r'<input type="hidden" name="magic" value="([^"]+)">')
+        match = magicRegex.search(str(html.stdout))
+
+        return match.group(1)
+
+    def login(self) -> None:
+        magic = self.fetch_magic()
+        url = self.config["campus_endpoint"]
+        res = requests.post(url, data={
+            "4Tredir": "https://172.18.10.10:1000/login?",
+            "magic": magic,
+            "username": self.config["username"],
+            "password": self.config["password"]
+        })
+        print(res.text)
+
+
+    def logout(self) -> None:
         pass
+
+    def generate_headers() -> dict:
+        pass
+        
 
 def parse_args() -> dict:
     ap = argparse.ArgumentParser(description="A command line utility to login and logout from VITAP's hostel and campus wifi")
@@ -115,6 +141,9 @@ def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
 
         elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
             return Wifi.CAMPUS
+        
+        elif 'VIT-AP-MH5' in str(subprocess.check_output("iwgetid")):
+            return Wifi.MH5
 
         else:
             return Wifi.UNKNOWN
@@ -167,6 +196,10 @@ def main() -> None:
     
     else:
         attempt_logout(args, wifi)
+
+def main() -> None:
+    campus = Campus()
+    campus.login()
 
 if __name__ == "__main__":
     main()
