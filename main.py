@@ -97,11 +97,26 @@ class Hostel(Base):
 class Campus(Base):
     def fetch_magic(self) -> str:
         url = self.config["campus_endpoint"]
-        html = subprocess.run(["curl", f"{url}/login?"], stdout=subprocess.PIPE)
+
+        try:
+            html = subprocess.run(
+                ["wget", "--no-check-certificate", "-O-", f"{url}/login?"], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running wget: {e}")
+            print(f"stderr: {e.stderr.decode('utf-8')}")
+            return None
+
         magicRegex = re.compile(r'<input type="hidden" name="magic" value="([^"]+)">')
         match = magicRegex.search(str(html.stdout))
 
-        return match.group(1)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Magic token not found in the HTML response.")
 
     def login(self) -> None:
         magic = self.fetch_magic()
@@ -111,13 +126,19 @@ class Campus(Base):
             "magic": magic,
             "username": self.config["username"],
             "password": self.config["password"]
-        })
+        }, verify=False)
         print(res.text)
 
 
     def logout(self) -> None:
-        res = requests.get(f"{self.config["campus_endpoint"]}/logout?")
-        print(res.text)
+        url = self.config["campus_endpoint"]
+        html = subprocess.run(
+                ["wget", "--no-check-certificate", "-O-", f"{url}/logout?"], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                check=True
+        )
+        print(html)
 
     def generate_headers() -> dict:
         pass
