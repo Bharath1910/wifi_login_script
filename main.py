@@ -1,3 +1,5 @@
+#!/home/mystichqra/Documents/Projects/wifi_login_script/.venv/bin/python
+
 import requests
 import json
 from typing import TypedDict
