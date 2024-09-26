@@ -8,6 +8,9 @@ import subprocess
 import re
 import csv
 import argparse
+import http.client
+import urllib.parse
+import ssl
 
 class Config(TypedDict):
     username: str
@@ -35,21 +38,25 @@ class Base(ABC):
 class Campus(Base):
     def fetch_magic(self) -> str:
         url = self.config["campus_endpoint"]
+        
+        # Extract hostname and path
+        hostname = url.replace("https://", "").replace("http://", "")
+        path = "/login?"
 
-        try:
-            html = subprocess.run(
-                ["wget", "--no-check-certificate", "-O-", f"{url}/login?"], 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
-                check=True
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred while running wget: {e}")
-            print(f"stderr: {e.stderr.decode('utf-8')}")
-            return None
+        # Establish a connection with SSL verification disabled
+        conn = http.client.HTTPSConnection(hostname, context=ssl._create_unverified_context())
+        
+        # Make a GET request to the login URL
+        conn.request("GET", path)
 
+        # Get the response
+        response = conn.getresponse()
+        html_content = response.read().decode('utf-8')
+        conn.close()
+
+        # Regex to find the 'magic' value in the HTML
         magicRegex = re.compile(r'<input type="hidden" name="magic" value="([^"]+)">')
-        match = magicRegex.search(str(html.stdout))
+        match = magicRegex.search(html_content)
 
         if match:
             return match.group(1)
@@ -59,22 +66,44 @@ class Campus(Base):
     def login(self) -> None:
         magic = self.fetch_magic()
         url = self.config["campus_endpoint"]
-        file = open('wifi.csv', mode='r')
-        creds = list(csv.reader(file))
-        #print(creds_copy)
+        
+        # Extract hostname and path
+        hostname = url.replace("https://", "").replace("http://", "")
+        path = "/login?"
+
+        # Open the CSV file and read the credentials
+        with open('wifi.csv', mode='r') as file:
+            creds = list(csv.reader(file))
+
         for cred in creds:
-            res = requests.post(url, data={
+            # Prepare POST data
+            post_data = urllib.parse.urlencode({
                 "4Tredir": "https://172.18.10.10:1000/login?",
                 "magic": magic,
                 "username": cred[0],
                 "password": cred[1]
-            }, verify=False)
-            #print(res.text)
+            })
 
-            if "https://172.18.10.10:1000/keepalive?" in res.text:
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+
+            # Establish a connection with SSL verification disabled
+            conn = http.client.HTTPSConnection(hostname, context=ssl._create_unverified_context())
+
+            # Make a POST request to the login URL
+            conn.request("POST", path, body=post_data, headers=headers)
+
+            # Get the response
+            response = conn.getresponse()
+            response_content = response.read().decode('utf-8')
+            conn.close()
+
+            # Check the response for success or failure
+            if "https://172.18.10.10:1000/keepalive?" in response_content:
                 print(f"Login Successful using {cred}")
                 break
-            elif "Sorry, user&apos;s concurrent authentication is over limit" in res.text:
+            elif "Sorry, user&apos;s concurrent authentication is over limit" in response_content:
                 print(f"Concurrent Login while using {cred}")
                 continue
             else:
@@ -85,18 +114,27 @@ class Campus(Base):
 
 
     def logout(self) -> None:
-        url = self.config["campus_endpoint"]
-        html = subprocess.run(
-                ["wget", "--no-check-certificate", "-O-", f"{url}/logout?"], 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
-                check=True
-        )
-        html_content = html.stdout.decode('utf-8')
+        url = self.config['campus_endpoint']
+        
+        # Extract hostname and path
+        hostname = url.replace("https://", "").replace("http://", "")
+        path = "/logout?"
+
+        # Establish a connection
+        conn = http.client.HTTPSConnection(hostname, context=ssl._create_unverified_context())
+
+        # Make a GET request to the logout URL
+        conn.request("GET", path)
+
+        # Get the response
+        response = conn.getresponse()
+        html_content = response.read().decode('utf-8')
         #print(html_content)
 
         if "You have successfully logged out" in html_content:
             print("Logout Successful")
+
+        conn.close()
 
     def generate_headers() -> dict:
         pass
