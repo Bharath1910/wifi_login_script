@@ -64,7 +64,6 @@ class Campus(Base):
     def login(self) -> None:
         magic = self.fetch_magic()
         url = self.config["campus_endpoint"]
-        cred = [self.config["username"],self.config["password"]]
         
         # Extract hostname and path
         hostname = url.replace("https://", "").replace("http://", "")
@@ -74,38 +73,42 @@ class Campus(Base):
         with open('wifi.csv', mode='r') as file:
             creds = list(csv.reader(file))
 
-        # Prepare POST data
-        post_data = urllib.parse.urlencode({
-            "4Tredir": "https://172.18.10.10:1000/login?",
-            "magic": magic,
-            "username": cred[0],
-            "password": cred[1]
-        })
+        for cred in creds:
+            # Prepare POST data
+            post_data = urllib.parse.urlencode({
+                "4Tredir": "https://172.18.10.10:1000/login?",
+                "magic": magic,
+                "username": cred[0],
+                "password": cred[1]
+            })
 
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
 
-        # Establish a connection with SSL verification disabled
-        conn = http.client.HTTPSConnection(hostname, context=ssl._create_unverified_context())
+            # Establish a connection with SSL verification disabled
+            conn = http.client.HTTPSConnection(hostname, context=ssl._create_unverified_context())
 
-        # Make a POST request to the login URL
-        conn.request("POST", path, body=post_data, headers=headers)
+            # Make a POST request to the login URL
+            conn.request("POST", path, body=post_data, headers=headers)
 
-        # Get the response
-        response = conn.getresponse()
-        response_content = response.read().decode('utf-8')
-        conn.close()
+            # Get the response
+            response = conn.getresponse()
+            response_content = response.read().decode('utf-8')
+            conn.close()
 
-        # Check the response for success or failure
-        if "https://172.18.10.10:1000/keepalive?" in response_content:
-            print(f"Login Successful using {cred}")
-            
-        elif "Sorry, user&apos;s concurrent authentication is over limit" in response_content:
-            print(f"Concurrent Login while using {cred}")
-            
+            # Check the response for success or failure
+            if "https://172.18.10.10:1000/keepalive?" in response_content:
+                print(f"Login Successful using {cred}")
+                break
+            elif "Sorry, user&apos;s concurrent authentication is over limit" in response_content:
+                print(f"Concurrent Login while using {cred}")
+                continue
+            else:
+                print(f"Invalid login while using {cred}")
+                continue
         else:
-            print(f"Invalid login while using {cred}")
+            print("Reached end of the csv file")
 
 
     def logout(self) -> None:
