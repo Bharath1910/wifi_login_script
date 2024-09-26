@@ -70,10 +70,6 @@ class Campus(Base):
         hostname = url.replace("https://", "").replace("http://", "")
         path = "/login?"
 
-        # Open the CSV file and read the credentials
-        with open('wifi.csv', mode='r') as file:
-            creds = list(csv.reader(file))
-
         # Prepare POST data
         post_data = urllib.parse.urlencode({
             "4Tredir": "https://172.18.10.10:1000/login?",
