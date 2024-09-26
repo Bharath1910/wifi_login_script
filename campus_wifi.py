@@ -1,3 +1,5 @@
+#!/home/mystichqra/Documents/Projects/wifi_login_script/.venv/bin/python
+
 import requests
 import json
 from typing import TypedDict
@@ -130,7 +132,7 @@ def main() -> None:
         elif choice == 2:
             campus.logout()
         else:
-            print("Unknown choice")
+            print("arigato <3")
 
 if __name__ == "__main__":
     main()
