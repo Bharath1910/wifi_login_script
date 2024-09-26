@@ -1,3 +1,5 @@
+#!/home/mystichqra/Documents/Projects/wifi_login_script/.venv/bin/python
+
 import requests
 import json
 from typing import TypedDict
@@ -7,11 +9,14 @@ import subprocess
 import time
 import argparse
 from enum import Enum
+import re
 
 class Wifi(Enum):
     HOSTEL = "VITAP-HOSTEL"
+    MH5 = "VIT-AP-MH5"
     CAMPUS = "VIT-AP"
     UNKNOWN = "UNKNOWN"
+
 class Config(TypedDict):
     username: str
     password: str
@@ -92,9 +97,54 @@ class Hostel(Base):
         }
 
 class Campus(Base):
-    @staticmethod
-    def fetch_magic() -> str:
+    def fetch_magic(self) -> str:
+        url = self.config["campus_endpoint"]
+
+        try:
+            html = subprocess.run(
+                ["wget", "--no-check-certificate", "-O-", f"{url}/login?"], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running wget: {e}")
+            print(f"stderr: {e.stderr.decode('utf-8')}")
+            return None
+
+        magicRegex = re.compile(r'<input type="hidden" name="magic" value="([^"]+)">')
+        match = magicRegex.search(str(html.stdout))
+
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Magic token not found in the HTML response.")
+
+    def login(self) -> None:
+        magic = self.fetch_magic()
+        url = self.config["campus_endpoint"]
+        res = requests.post(url, data={
+            "4Tredir": "https://172.18.10.10:1000/login?",
+            "magic": magic,
+            "username": self.config["username"],
+            "password": self.config["password"]
+        }, verify=False)
+        print(res.text)
+
+
+    def logout(self) -> None:
+        url = self.config["campus_endpoint"]
+        html = subprocess.run(
+                ["wget", "--no-check-certificate", "-O-", f"{url}/logout?"], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE, 
+                check=True
+        )
+        print(html)
+
+    def generate_headers() -> dict:
         pass
+        
 
 def parse_args() -> dict:
     ap = argparse.ArgumentParser(description="A command line utility to login and logout from VITAP's hostel and campus wifi")
@@ -115,6 +165,9 @@ def fetch_ssid(args: dict, poll: bool = False) -> Wifi:
 
         elif 'VIT-AP' in str(subprocess.check_output("iwgetid")):
             return Wifi.CAMPUS
+        
+        elif 'VIT-AP-MH5' in str(subprocess.check_output("iwgetid")):
+            return Wifi.MH5
 
         else:
             return Wifi.UNKNOWN
@@ -160,13 +213,14 @@ def attempt_logout(args: dict, wifi: Wifi) -> None:
 
 def main() -> None:
     args = parse_args()
-    wifi = fetch_ssid(args=args, poll=args['p'])
+    # wifi = fetch_ssid(args=args, poll=args['p'])
     
+    campus = Campus()
     if args['login']:
-        attempt_login(args, wifi)
+        campus.login()
     
     else:
-        attempt_logout(args, wifi)
+        campus.logout()
 
 if __name__ == "__main__":
     main()

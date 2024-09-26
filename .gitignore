@@ -1,1 +1,4 @@
 config.json
+.venv/
+app.log
+wifi.csv
