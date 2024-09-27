@@ -1,6 +1,5 @@
-#!/home/mystichqra/Documents/Projects/wifi_login_script/.venv/bin/python
-
 import json
+import os
 from typing import TypedDict
 from abc import ABC, abstractmethod
 import re
@@ -18,8 +17,8 @@ class Config(TypedDict):
 
 class Base(ABC):
     def __init__(self) -> None:
-        # TODO: Implement exception handling
-        self.config: Config = json.load(open("./config.json", "r"))
+        self.config_file_path = "./config.json"
+        self.config: Config = self.load_or_create_config()
     
     @abstractmethod
     def login(self) -> None:
@@ -32,6 +31,27 @@ class Base(ABC):
     @abstractmethod
     def generate_headers() -> dict:
         pass
+
+    def load_or_create_config(self) -> Config:
+        """Load config.json or create it if it doesn't exist."""
+        if not os.path.exists(self.config_file_path):
+            print(f"Config file not found. Creating {self.config_file_path}...")
+            # Default config values
+            default_config = {
+                "username": "",
+                "password": "",
+                "hostel_endpoint": "https://hfw.vitap.ac.in:8090/login.xml",
+                "campus_endpoint": "https://172.18.10.10:1000"
+            }
+            # Write default config to file
+            with open(self.config_file_path, "w") as config_file:
+                json.dump(default_config, config_file, indent=4)
+            print(f"Please update {self.config_file_path} with your username and password.")
+            exit(1)  # Exit after creating the config file
+        else:
+            # Load the existing config
+            with open(self.config_file_path, "r") as config_file:
+                return json.load(config_file)
 
 class Campus(Base):
     def fetch_magic(self) -> str:
