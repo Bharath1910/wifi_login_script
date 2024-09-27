@@ -46,8 +46,6 @@ class Base(ABC):
             # Write default config to file
             with open(self.config_file_path, "w") as config_file:
                 json.dump(default_config, config_file, indent=4)
-            print(f"Please update {self.config_file_path} with your username and password.")
-            exit(1)  # Exit after creating the config file
         else:
             # Load the existing config
             with open(self.config_file_path, "r") as config_file:

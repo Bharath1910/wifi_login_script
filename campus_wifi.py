@@ -19,6 +19,9 @@ class Base(ABC):
     def __init__(self) -> None:
         self.config_file_path = "./config.json"
         self.config: Config = self.load_or_create_config()
+        if self.config["username"] or self.config["password"] == "":
+            print(f"Please update {self.config_file_path} with your username and password.")
+            exit(1)  # Exit after creating the config file
     
     @abstractmethod
     def login(self) -> None:
