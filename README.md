@@ -1,4 +1,5 @@
-# VIT-AP Campus Wifi Automation ~~Automate the Boring Stuff with Python~~
+# VIT-AP Campus Wifi Automation
+~~Automate the Boring Stuff with Python~~
 
 A python script to automate the wifi login for VIT-AP's campus's wifi.
 
