@@ -1,9 +1,10 @@
-# VIT-AP Campus WIFI Auto-Login ~~Automate the Boring Stuff with Python~~
+# VIT-AP Campus Wifi Automation ~~Automate the Boring Stuff with Python~~
 
 A python script to automate the wifi login for VIT-AP's campus's wifi.
 
 ## Features
 1. Automate the wifi login and logout by setting your credentials in the config.json.
+2. Automate the same for a list of credentials by using a csv file (wifi.csv).
 
 ## Requirements
 - python 3.x (duh)
@@ -41,5 +42,15 @@ $ python campus_wifi_csv.py
 $ python campus_wifi_csv.py --login #Directly log in to an account from the csv
 $ python campus_wifi_csv.py --logout #Directly log out of an account from the csv
 ```
-## config.json help
+## Help Section
+**If you use campus_wifi.py for logging in, then you need to set your username and password in the config.json file.**
 > **Note:** The endpoints defined in the config.json file are the default endpoints for the hostel and campus wifi. If the endpoints are changed, you ~~should be smart enough to figure it out~~ can find the new endpoints by inspecting the network requests in the browser's developer tools.
+
+**If you use the campus_wifi_csv.py for logging in, then you need to create a wifi.csv file containing the credentials that you want the script to use for logging in.**
+
+## Example for wifi.csv file:
+```
+username1, password1
+username2, password2
+username3, password3
+```
