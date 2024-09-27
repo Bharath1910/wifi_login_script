@@ -1,6 +1,6 @@
-# VIT-AP Campus WIFI Auto-Login ~~Automate the boring manual stuff~~ 
+# VIT-AP Campus WIFI Auto-Login ~~Automate the Boring Stuff with Python~~
 
-A python script to automate wifi login for VIT-AP's campus's wifi.
+A python script to automate the wifi login for VIT-AP's campus's wifi.
 
 ## Features
 1. Automate the wifi login and logout by setting your credentials in the config.json.
