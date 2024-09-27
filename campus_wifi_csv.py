@@ -1,5 +1,3 @@
-#!/home/mystichqra/Documents/Projects/wifi_login_script/.venv/bin/python
-
 import json
 from typing import TypedDict
 from abc import ABC, abstractmethod

@@ -34,6 +34,7 @@ options:
 
 ## Examples
 ```bash
-$ python3 main.py --login
-$ python3 main.py --logout
+$ python3 campus_wifi.py
+$ python3 campus_wifi.py --login #Directly log in to your account
+$ python3 campus_wifi.py --logout #Directly log out of your account
 ```
