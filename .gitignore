@@ -1,4 +1,7 @@
+wifi.csv
 config.json
 .venv/
 app.log
-wifi.csv
+remove_invalid_login_csv.py
+main.py
+test.py
